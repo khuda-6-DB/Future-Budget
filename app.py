@@ -12,16 +12,17 @@ from datetime import datetime
 # 사용자 정의 함수
 from file import allowed_file
 from bank_pre import preprocess
-from visualization import monthly_consumption, monthly_trend, plot_monthly_budget_and_expenses
-from category_ratio import prepare_data, redistribute_excluded_categories
+from visualization import monthly_consumption, monthly_trend_picture, plot_monthly_budget_and_expenses
+from category_ratio import prepare_data, redistribute_excluded_categories, load_data, get_top_category
 from budget_distribution import calc_original_ratios, adjust_weights_with_normalization_calculate_budget,redistribute_ratios
 
 # 설치된 한글 폰트 경로 설정 (예: 맑은 고딕)
-font_path = 'SCDream2.otf'  # Windows
+font_path = '/Users/nyeong/Desktop/new/SCDream2.otf'  # Windows
 # Linux의 경우: '/usr/share/fonts/truetype/nanum/NanumGothic.ttf'
 
 app = Flask(__name__, static_url_path='/static')
 app.config['UPLOAD_FOLDER'] = './uploads'
+app.config['SECRET_KEY'] = os.urandom(24)
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 app.config['ALLOWED_EXTENSIONS'] = {'xls', 'xlsx'}
@@ -174,7 +175,7 @@ def future_page():
 @app.route('/monthly_expenditure/<year_month>')
 def monthly_expenditure(year_month):
     client = request.remote_addr
-    result = monthly_consumption(client, year_month, font_path)
+    result = monthly_consumption(client, font_path, year_month)
     return result
 
 @app.route('/monthly_trend')
@@ -185,7 +186,7 @@ def monthly_trend():
     if not os.path.exists(file_path):
         return "No data file available."
 
-    img_url = monthly_trend(client_id, file_path, font_path)
+    img_url = monthly_trend_picture(client_id, font_path)
     return render_template('monthly_trend.html', img_path=img_url)
 
 
@@ -363,13 +364,22 @@ def clear_data():
     
 @app.route('/mbti_page', methods=['GET', 'POST'])
 def mbti_page():
-    top_category = session.get('top_category')
+    client_id = request.remote_addr
+    processed_file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_bank.xlsx")
 
-    if request.method == 'POST':
-        return render_template('mbti_page.html', top_category=top_category)
+    # 파일 존재 여부 확인 및 처리
+    if os.path.exists(processed_file_path):
+        data = load_data(processed_file_path)  # 데이터 로드
+        if data is not None and not data.empty:
+            top_category = get_top_category(data)  # 최상위 카테고리 계산
+            session['top_category'] = top_category
+        else:
+            top_category = "데이터를 읽는 중 오류 발생"
+    else:
+        top_category = "업로드된 데이터 없음"
 
     return render_template('mbti_page.html', top_category=top_category)
-    
+
 # Flask 라우트 추가
 @app.route('/future_budget_visualization', methods=['POST'])
 def future_budget_visualization():
@@ -423,7 +433,7 @@ def future_budget_visualization():
 
 
     img_path = plot_monthly_budget_and_expenses(current_month_data,budget_distribution,exclude_categories, font_path, client_id)
-    return render_template('future_budget_visualization.html', img_path=img_path)
+    return jsonify({"img_path": img_path})
 
 
 if __name__ == '__main__':
