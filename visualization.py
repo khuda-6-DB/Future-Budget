@@ -106,3 +106,68 @@ def monthly_trend(client_id,font):
     img_url = f"/static/{img_filename}"
     return img_url
 
+def plot_monthly_budget_and_expenses(current_month_data,budget_distribution, exclude_categories, font, clinet_id):
+
+    # {카테고리:{}, 지출액:{}} 만들기 -> 이번달
+    monthly_expense = current_month_data.to_dict()
+    filtered_categories = {idx: cat for idx, cat in monthly_expense['카테고리'].items() if cat not in exclude_categories}
+    filtered_expenses = {idx: expense for idx, expense in monthly_expense['지출액'].items() if idx in filtered_categories}
+    filtered_expense = {
+        '카테고리': filtered_categories,
+        '지출액': filtered_expenses
+    }
+    monthly_expense = {
+        '카테고리': {new_idx: cat for new_idx, (old_idx, cat) in enumerate(filtered_expense['카테고리'].items())},
+        '지출액': {new_idx: filtered_expense['지출액'][old_idx] for new_idx, old_idx in enumerate(filtered_expense['지출액'].keys())}
+    }
+
+    categories_name = list(monthly_expense['카테고리'].values())
+    categories = list(budget_distribution.keys())
+
+    expense_values = [monthly_expense['지출액'].get(cat, 0) for cat in categories]
+    budget_values = [budget_distribution[cat] for cat in categories]
+    remaining_budget = [budget_distribution[cat] - monthly_expense['지출액'].get(cat, 0) for cat in categories]
+
+    fig, ax = plt.subplots(figsize=(15, 10))
+    bars_expense = ax.bar(categories, expense_values, color='darkblue', label='지출')
+    bars_remaining = ax.bar(categories, remaining_budget, color='lightblue', alpha=0.7, label='남은 예산', bottom=expense_values)
+
+    font_path = font
+    fontprop = fm.FontProperties(fname=font_path)
+    ax.set_ylabel('금액 (원)', fontproperties=fontprop)
+    ax.set_xlabel('카테고리', fontproperties=fontprop)
+    ax.set_title(f'카테고리별 지출 및 남은 예산', fontproperties=fontprop)
+    ax.legend(prop=fontprop)
+    ax.margins(x=0.01)
+    ax.set_xticks(range(len(categories_name)))  # x축 틱의 개수를 카테고리 수에 맞춤
+    ax.set_xticklabels(categories_name, fontproperties=fontprop)
+
+    # 각 바에 지출, 예산, 남은 돈을 한 박스에 표시
+    for i in range(len(categories)):
+        expense = expense_values[i]
+        budget = budget_values[i]
+        remaining = remaining_budget[i]
+        text_position = budget + expense if budget + expense < max(budget, expense) else max(budget, expense)
+        
+        # 텍스트 박스 내용 생성
+        text = f'예산: {budget:,.0f}원\n지출: {expense:,.0f}원\n남은 돈: {remaining:,.0f}원'
+        print(text_position)
+        #height_offset = 200 if text_position == budget+expense else 10
+        height_offset = 10
+        # 박스에 텍스트 추가
+        ax.annotate(
+            text,
+            (i, text_position),
+            textcoords="offset points",
+            xytext=(0, height_offset),
+            ha='center',
+            bbox=dict(boxstyle="round,pad=0.3", edgecolor='black', facecolor='white'),
+            fontproperties=fontprop,
+            fontsize=8
+        )
+
+    plt.tight_layout(pad=2.0)
+    img_path = f'static/{client_id}_monthly_budget.png'
+    plt.savefig(img_path)
+    plt.close()
+    return img_paths

@@ -65,13 +65,16 @@ def second_preprocessing(data):
     }
 
     def get_chatgpt_response(query):
+        # OpenAI ChatCompletion 호출
         completion = client.chat.completions.create(
-      messages=[
-          {"role": "user", "content": f"{query}에 대한 기본 정보를 알려주세요."}
+        messages=[
+            {"role": "user", "content": f"{query}에 대한 기본 정보를 알려주세요."}
         ],
         model="gpt-3.5-turbo",
-        )
-        return completion.choices[0].message.content.strip()
+    )
+        # 응답에서 텍스트 추출
+        answer = completion.choices[0].message.content.strip()
+        return answer
 
     model = SentenceTransformer('jhgan/ko-sroberta-multitask')
 
