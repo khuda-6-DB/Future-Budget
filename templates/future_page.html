@@ -28,9 +28,8 @@
             top: 10px;
             left: 20px;
             text-align: left;
-            z-index: 10;
             margin-bottom: 30px;
-            margin-top: 21px;
+            margin-top: 25px;
         }
 
         .logo-container img {
@@ -41,21 +40,17 @@
 
         /* 달력 스타일 */
         .calendar {
-            margin-top: 50px;
-            width: 39%;
-            margin: 0 auto; /* 중앙 정렬 */
+            margin: 50px auto; /* 중앙 정렬 */
+            width: 29%;
         }
 
-        /* 헤더 스타일 */
         .calendar-header {
             display: flex;
             justify-content: space-between;
-            width: 100%;
             margin-bottom: 20px;
-            margin-top: 80px;
         }
         .calendar-header h2 {
-            font-size: 24px; /* 볼드 스타일 제거 */
+            font-size: 24px;
             cursor: pointer;
         }
 
@@ -64,24 +59,21 @@
             justify-content: center;
         }
 
-        /* 첫 번째 주는 오른쪽 정렬 */
         .week-row.first-week {
             justify-content: flex-end;
         }
 
-        /* 마지막 주는 왼쪽 정렬 */
         .week-row.last-week {
             justify-content: flex-start;
         }
 
-        /* 날짜 셀 스타일 */
         .day {
             display: inline-block;
             width: 60px;
             height: 60px;
-            line-height: 60px; /* 텍스트 중앙 정렬 */
+            line-height: 60px;
             text-align: center;
-            font-size: 20px; /* 날짜 텍스트 크기 */
+            font-size: 20px;
             cursor: pointer;
             border: 1px solid #ccc;
             margin: 5px;
@@ -92,18 +84,17 @@
         }
 
         .empty {
-            width: 60px; /* 빈 칸의 크기 조정 */
-            height: 60px; /* 빈 칸의 크기 조정 */
-            visibility: hidden; /* 보이지 않게 처리 */
+            width: 60px;
+            height: 60px;
+            visibility: hidden;
         }
 
-        /* 버튼을 중앙 정렬하기 */
         .button-container {
             display: flex;
             flex-direction: column;
-            align-items: center; /* 세로 중앙 정렬 */
-            justify-content: center; /* 가로 중앙 정렬 */
-            gap: 20px; /* 버튼 간격 */
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
 
         .future-button {
@@ -123,9 +114,11 @@
         }
 
         .delete-button {
-            padding: 10px 20px;
-            font-size: 18px;
-            background-color: #f44336;
+            padding: 10px 30px;
+            font-size: 16px;
+            background-color: #003366;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.3s;
             color: white;
             border: none;
             cursor: pointer;
@@ -134,11 +127,10 @@
         }
 
         .delete-button:hover {
-            background-color: #d32f2f;
+            background-color: #002953;
         }
 
         .section5 {
-            grid-row: 5;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -154,16 +146,70 @@
             margin: 10px 0;
             text-align: center;
         }
+
+        /* 새로운 작은 창에서 사용될 스타일 */
+        .container {
+            width: 100%;
+            max-width: 600px; /* 작은 창에 맞게 크기 설정 */
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            text-align: center;  /* 중앙 정렬 */
+        }
+
     </style>
 </head>
+
 <body>
-    <!-- 로고 영역 -->
+    <!-- 로고 -->
     <div class="logo-container">
         <a href="/" id="logo-link">
             <img src="/static/images/logo.jpg" alt="로고">
         </a>
     </div>
 
+    <!-- 예산 그래프 -->
+<div class="future_budget_graph" id="budgetGraph">
+    <p>데이터가 없습니다.</p> <!-- 기본 메시지 -->
+</div>
+
+<!-- 버튼 -->
+<div class="button-container">
+    <!-- 기존 form 대신 JavaScript로 처리 -->
+    <button id="futureButton" class="future-button">미래가 궁금하신가요?</button>
+    <form method="post" action="/clear_data" onsubmit="return confirm('정말 데이터를 삭제하시겠습니까?')">
+        <button type="submit" class="delete-button">가계부 초기화</button>
+    </form>
+</div>
+
+<script>
+    // "미래가 궁금하신가요?" 버튼 클릭 이벤트 처리
+    document.getElementById("futureButton").addEventListener("click", () => {
+        // 버튼 클릭 시 fetch 요청으로 데이터를 가져옴
+        fetch("/future_budget_visualization", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        .then(response => response.json()) // 서버에서 JSON 응답
+        .then(data => {
+            if (data.img_path) {
+                const graphDiv = document.getElementById('budgetGraph');
+                graphDiv.innerHTML = `<img src="${data.img_path}" alt="월별 예산과 지출 시각화" style="max-width: 100%; height: auto;">`;
+            } else {
+                console.error("img_path가 존재하지 않습니다.");
+            }
+        })
+        .catch(error => {
+            console.error("Fetch error:", error);
+        });
+    });
+</script>
+
+
+    <!-- 달력 -->
     <div class="calendar">
         <div class="calendar-header">
             <button id="prevMonthBtn" onclick="changeMonth(-1)">&lt;</button>
@@ -173,16 +219,6 @@
         <div id="calendarDays"></div>
     </div>
 
-    <div class="button-container">
-        <form method="post" action="/future_budget_visualization">
-            <button type="submit" class="future-button">미래가 궁금하신가요?</button>
-        </form>
-
-        <form method="post" action="/clear_data" onsubmit="return confirm('정말 데이터를 삭제하시겠습니까?')">
-            <button type="submit" class="delete-button">가계부 초기화</button>
-        </form>
-    </div>
-
     <div class="section section5">
         <h4>경희대학교 데이터 분석/AI 중앙동아리 KHUDA</h4>
         <h7>Data Business & Recommendation System Track</h7>
@@ -190,11 +226,10 @@
     </div>
 
     <script>
-        // 로고 클릭 시 확인 팝업
         document.getElementById('logo-link').addEventListener('click', function(event) {
             const confirmation = confirm("메인 페이지로 돌아가시겠습니까?");
             if (!confirmation) {
-                event.preventDefault(); // 취소 시 이동을 막음
+                event.preventDefault();
             }
         });
 
@@ -203,40 +238,33 @@
         let currentDate = new Date();
 
         function renderCalendar(date) {
-            const monthNames = [
-                "1월", "2월", "3월", "4월", "5월", "6월",
-                "7월", "8월", "9월", "10월", "11월", "12월"
-            ];
-            calendarDays.innerHTML = ''; // 기존 내용 삭제
+            const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+            calendarDays.innerHTML = '';
 
-            const monthYearDisplay = document.getElementById('monthYear');
-            monthYearDisplay.textContent = `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-
-            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();  // 해당 월 첫째 날의 요일
-            const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();  // 해당 월의 일 수
+            monthYear.textContent = `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+            const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 
             let weekRow = document.createElement('div');
-            weekRow.classList.add('week-row', 'first-week'); // 첫 주는 오른쪽 정렬
+            weekRow.classList.add('week-row', 'first-week');
 
-            // 첫 번째 주는 빈 공간을 추가하여 시작 위치를 맞추기
             for (let i = 0; i < firstDay; i++) {
                 const emptyDiv = document.createElement('div');
                 emptyDiv.classList.add('empty');
                 weekRow.appendChild(emptyDiv);
             }
 
-            // 날짜 생성
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayDiv = document.createElement('div');
                 dayDiv.classList.add('day');
                 dayDiv.textContent = day;
                 dayDiv.onclick = () => {
                     const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-                    window.location.href = `/add_entry/${formattedDate}`;
+                    // 새 창 열기
+                    window.open(`/add_entry/${formattedDate}`, "가계부 작성", "width=600,height=600,scrollbars=yes,resizable=yes");
                 };
                 weekRow.appendChild(dayDiv);
 
-                // 한 주에 7일이 되면 새로운 주를 생성
                 if (weekRow.children.length === 7) {
                     calendarDays.appendChild(weekRow);
                     weekRow = document.createElement('div');
@@ -244,14 +272,13 @@
                 }
             }
 
-            // 마지막 주 처리 (7일 미만일 경우)
             if (weekRow.children.length > 0) {
-                weekRow.classList.add('last-week'); // 마지막 주는 왼쪽 정렬
+                weekRow.classList.add('last-week');
                 calendarDays.appendChild(weekRow);
             }
         }
 
-        // 날짜 변경 함수
+
         function changeMonth(offset) {
             currentDate.setMonth(currentDate.getMonth() + offset);
             renderCalendar(currentDate);
@@ -259,12 +286,30 @@
 
         renderCalendar(currentDate);
 
-                // Flask에서 전달된 팝업 메시지 처리
-        const popupMessage = "{{ popup_message | safe }}";
-        if (popupMessage) {
-            alert(popupMessage);
-        }
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("/future_budget_visualization", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error("Error calling /future_budget_visualization");
+                } else {
+                    console.log("Successfully called /future_budget_visualization");
+                }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+            });
+        });
 
+        // Flask에서 전달된 팝업 메시지 처리
+        const popupMessage = "{{ popup_message | safe }}";
+            if (popupMessage) {
+                alert(popupMessage);
+            }
     </script>
 </body>
 </html>

@@ -69,7 +69,7 @@ def monthly_consumption(client, font, year_month):
         return f"No expenditure data for {year_month}"
 
 # 모든 월 추세
-def monthly_trend(client_id,font):
+def monthly_trend_picture(client_id,font):
     # 설치된 한글 폰트 경로 설정 (예: 맑은 고딕)
     font_path = font  # Windows
     # Linux의 경우: '/usr/share/fonts/truetype/nanum/NanumGothic.ttf'
@@ -106,7 +106,7 @@ def monthly_trend(client_id,font):
     img_url = f"/static/{img_filename}"
     return img_url
 
-def plot_monthly_budget_and_expenses(current_month_data,budget_distribution, exclude_categories, font, clinet_id):
+def plot_monthly_budget_and_expenses(current_month_data,budget_distribution, exclude_categories, font, client_id):
 
     # {카테고리:{}, 지출액:{}} 만들기 -> 이번달
     monthly_expense = current_month_data.to_dict()
@@ -170,4 +170,4 @@ def plot_monthly_budget_and_expenses(current_month_data,budget_distribution, exc
     img_path = f'static/{client_id}_monthly_budget.png'
     plt.savefig(img_path)
     plt.close()
-    return img_paths
+    return img_path

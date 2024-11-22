@@ -28,3 +28,11 @@ def get_top_category(data):
     top_category = df.loc[df['원래 비율'].idxmax(), '카테고리']
     return top_category
 
+# 데이터 읽기 함수
+def load_data(filepath):  # 파일 경로를 받아 데이터프레임 반환
+    try:
+        data = pd.read_excel(filepath)
+        return data
+    except Exception as e:
+        print(f"Error loading file: {e}")
+        return None
