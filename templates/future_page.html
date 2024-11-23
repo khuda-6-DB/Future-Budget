@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>가계부 작성</title>
+    <link rel="icon" href="/static/images/favicon.png" type="image/png"> <!-- .png 파일 -->
     <style>
         @font-face {
             font-family: 'S-CoreDream-3Light';
@@ -90,6 +91,7 @@
         }
 
         .button-container {
+            margin-top: -50px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -98,9 +100,9 @@
         }
 
         .future-button {
-            padding: 10px 20px;
-            font-size: 18px;
-            background-color: #4CAF50;
+            padding: 10px 30px;
+            font-size: 16px;
+            background-color: #003366;
             color: white;
             border: none;
             cursor: pointer;
@@ -110,7 +112,7 @@
         }
 
         .future-button:hover {
-            background-color: #45a049;
+            background-color: #002953;
         }
 
         .delete-button {
@@ -170,44 +172,7 @@
     </div>
 
     <!-- 예산 그래프 -->
-<div class="future_budget_graph" id="budgetGraph">
-    <p>데이터가 없습니다.</p> <!-- 기본 메시지 -->
-</div>
-
-<!-- 버튼 -->
-<div class="button-container">
-    <!-- 기존 form 대신 JavaScript로 처리 -->
-    <button id="futureButton" class="future-button">미래가 궁금하신가요?</button>
-    <form method="post" action="/clear_data" onsubmit="return confirm('정말 데이터를 삭제하시겠습니까?')">
-        <button type="submit" class="delete-button">가계부 초기화</button>
-    </form>
-</div>
-
-<script>
-    // "미래가 궁금하신가요?" 버튼 클릭 이벤트 처리
-    document.getElementById("futureButton").addEventListener("click", () => {
-        // 버튼 클릭 시 fetch 요청으로 데이터를 가져옴
-        fetch("/future_budget_visualization", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-        .then(response => response.json()) // 서버에서 JSON 응답
-        .then(data => {
-            if (data.img_path) {
-                const graphDiv = document.getElementById('budgetGraph');
-                graphDiv.innerHTML = `<img src="${data.img_path}" alt="월별 예산과 지출 시각화" style="max-width: 100%; height: auto;">`;
-            } else {
-                console.error("img_path가 존재하지 않습니다.");
-            }
-        })
-        .catch(error => {
-            console.error("Fetch error:", error);
-        });
-    });
-</script>
-
+<div class="future_budget_graph" id="budgetGraph"></div>
 
     <!-- 달력 -->
     <div class="calendar">
@@ -217,12 +182,6 @@
             <button id="nextMonthBtn" onclick="changeMonth(1)">&gt;</button>
         </div>
         <div id="calendarDays"></div>
-    </div>
-
-    <div class="section section5">
-        <h4>경희대학교 데이터 분석/AI 중앙동아리 KHUDA</h4>
-        <h7>Data Business & Recommendation System Track</h7>
-        <p>개발: 소프트웨어융합학과 최소영, 이제희 / 산업경영공학과 허채은, 이준영</p>
     </div>
 
     <script>
@@ -305,11 +264,55 @@
             });
         });
 
-        // Flask에서 전달된 팝업 메시지 처리
-        const popupMessage = "{{ popup_message | safe }}";
-            if (popupMessage) {
-                alert(popupMessage);
-            }
+        // Flask에서 JSON으로 변환된 데이터를 안전하게 처리
+        const popupMessages = JSON.parse('{{ popup_messages | safe }}'); // JSON 문자열로 처리
+
+        if (popupMessages && Array.isArray(popupMessages)) {
+            // 메시지 배열을 한꺼번에 합쳐서 하나의 alert로 표시
+            const combinedMessage = popupMessages.join("\n");
+            alert(combinedMessage);
+        }
     </script>
+
+    <!-- 버튼 -->
+    <div class="button-container">
+        <!-- 기존 form 대신 JavaScript로 처리 -->
+        <button id="futureButton" class="future-button">카테고리별 예산 확인</button>
+        <form method="post" action="/clear_data" onsubmit="return confirm('정말 데이터를 삭제하시겠습니까?')">
+            <button type="submit" class="delete-button">가계부 초기화</button>
+        </form>
+    </div>
+
+    <script>
+        // "미래가 궁금하신가요?" 버튼 클릭 이벤트 처리
+        document.getElementById("futureButton").addEventListener("click", () => {
+            // 버튼 클릭 시 fetch 요청으로 데이터를 가져옴
+            fetch("/future_budget_visualization", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+            .then(response => response.json()) // 서버에서 JSON 응답
+            .then(data => {
+                if (data.img_path) {
+                    const graphDiv = document.getElementById('budgetGraph');
+                    graphDiv.innerHTML = `<img src="${data.img_path}" alt="월별 예산과 지출 시각화" style="max-width: 100%; height: auto;">`;
+                } else {
+                    console.error("img_path가 존재하지 않습니다.");
+                }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+            });
+        });
+    </script>
+
+    <div class="section section5">
+        <h4>경희대학교 데이터 분석/AI 중앙동아리 KHUDA</h4>
+        <h7>Data Business & Recommendation System Track</h7>
+        <p>개발: 소프트웨어융합학과 최소영, 이제희 / 산업경영공학과 허채은, 이준영</p>
+    </div>
+
 </body>
 </html>

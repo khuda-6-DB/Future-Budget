@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>미래 가계부: 내일의 돈을 오늘 설계하다</title>
+    <link rel="icon" href="/static/images/favicon.png" type="image/png"> <!-- .png 파일 -->
     <!-- Font Awesome 아이콘 라이브러리 추가 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
@@ -60,7 +61,7 @@
             height: 80px;
             width: 160px;
             object-fit: contain;
-            margin-top: -10.5px;
+            margin-top: -2.5px;
             margin-right: 20px;
             cursor: pointer; /* 클릭할 수 있게 커서 변경 */
         }
@@ -84,9 +85,9 @@
             color: #0073e6;
         }
 
-        /* 두 번째 구역 (4/9) - 슬라이더 영역 */
+        /* 두 번째 구역 (4/9) - 슬라이더 추가 */
         .section2 {
-            margin-top: -10.5px;
+            margin-top: -2.5px;
             grid-row: 2;
             justify-content: center;
             align-items: center;
@@ -100,7 +101,7 @@
         .slider {
             display: flex;
             transition: transform 1s ease-in-out;
-            width: 200%;
+            width: 300%; /* 3개의 슬라이드를 다 담을 수 있도록 설정 */
         }
 
         /* 슬라이드 이미지 스타일 */
@@ -206,6 +207,7 @@
         /* 다섯 번째 구역 (5/9) */
         .section5 {
             grid-row: 5;
+            margin-top: 30px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -213,6 +215,7 @@
             background-color: #424141;
             color: rgb(185, 185, 185);
             padding: 20px;
+            height: 19vh;
         }
 
         .section5 h5, .section5 h7, .section5 p {
@@ -270,6 +273,7 @@
             <div class="slider">
                 <img src="/static/images/cover5.jpg" alt="이미지 1" id="cover5">
                 <img src="/static/images/cover6.jpg" alt="이미지 2" id="cover6">
+                <img src="/static/images/cover7.jpg" alt="이미지 3" id="cover7"> <!-- cover7 추가 -->
             </div>
             <!-- 왼쪽, 오른쪽 화살표 추가 -->
             <div class="arrow-left"><i class="fas fa-chevron-left"></i></div>
@@ -278,6 +282,7 @@
             <div class="dots">
                 <div class="dot active" data-slide="0"></div>
                 <div class="dot" data-slide="1"></div>
+                <div class="dot" data-slide="2"></div> <!-- dot 추가 -->
             </div>
         </div>
 
@@ -320,7 +325,7 @@
 
         const slider = document.querySelector('.slider');
         const dots = document.querySelectorAll('.dot');
-        const totalSlides = 2;
+        const totalSlides = 3;  // 슬라이드 갯수 3개로 변경
         let currentSlide = 0;
 
         // 슬라이드를 자동으로 전환하는 함수
@@ -368,11 +373,41 @@
             window.location.reload();
         });
 
-        // cover6 클릭 시 mbti_page로 이동
+        // cover6 클릭 시 작은 새 창 열기
         const cover6 = document.getElementById('cover6');
         cover6.addEventListener('click', () => {
-            window.location.href = "mbti_page";  // 원하는 페이지로 이동
+            window.open('mbti_page', 'MBTI 페이지', 'width=600,height=700,scrollbars=yes,resizable=yes');
         });
+
+        // cover7 클릭 시 서버로 데이터 체크 요청
+        const cover7 = document.getElementById('cover7');
+        cover7.addEventListener('click', () => {
+            // 서버에 데이터를 확인하기 위한 요청을 보냄
+            fetch('second_page', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    check_data: true  // 데이터를 확인하려는 의도임을 알림
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 데이터가 있는 경우 future_page로 이동
+                    window.location.href = "future_page";
+                } else {
+                    // 데이터가 없으면 경고 메시지 출력
+                    alert("Step 1 ~ Step 3를 먼저 진행해주세요.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('데이터를 확인하는데 문제가 발생했습니다.');
+            });
+        });
+
 
         // 7초마다 슬라이드 전환
         setInterval(moveToNextSlide, 7000);
