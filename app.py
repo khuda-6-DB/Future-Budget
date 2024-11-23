@@ -56,6 +56,7 @@ def second_page():
     
     return render_template('second_page.html')
 
+
 # 예산 저장 페이지
 money_dict = {}
 category_dict = {}
@@ -220,47 +221,59 @@ def monthly_trend():
 
 @app.route('/add_entry/<date>', methods=['GET', 'POST'])
 def add_entry(date):
+    client_id = request.remote_addr
+    filename_money = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_money.xlsx")
+    filename_bank = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_bank.xlsx")
+
     if request.method == 'POST':
-        # 입력 받은 데이터 가져오기
-        category = request.form['category']
-        amount = int(request.form['amount'])
-        client_id = request.remote_addr
-        filename_money = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_money.xlsx")
-        filename_bank = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_bank.xlsx")
+        try:
+            # 입력 받은 데이터 가져오기
+            category = request.form['category']
+            amount = int(request.form['amount'])
+            action = request.form.get('action', 'submit')  # action 값을 확인 (submit 또는 confirm)
 
-        # 시간 제거 후 날짜 처리
-        date_only = pd.to_datetime(date).date()
+            # 날짜 처리
+            date_only = pd.to_datetime(date).date()
 
-        # 데이터프레임 생성
-        new_entry = pd.DataFrame({
-            '거래일시': [date_only],  # 시간 없이 날짜만 저장
-            '거래내용': ['입력'],
-            '출금액': [amount],
-            '잔액': [None],  # 잔액 필드는 비워두거나 필요시 계산
-            '카테고리': [category]
-        })
+            # 데이터프레임 생성
+            new_entry = pd.DataFrame({
+                '거래일시': [date_only],
+                '거래내용': ['입력'],
+                '출금액': [amount],
+                '잔액': [None],  # 잔액 필드는 비워두거나 필요시 계산
+                '카테고리': [category]
+            })
 
-        # clientid_money.xlsx 파일 처리
-        if os.path.exists(filename_money):
-            existing_data_money = pd.read_excel(filename_money, engine='openpyxl')
-            updated_data_money = pd.concat([existing_data_money, new_entry], ignore_index=True)
-        else:
-            updated_data_money = new_entry
+            # clientid_money.xlsx 파일 처리
+            if os.path.exists(filename_money):
+                existing_data_money = pd.read_excel(filename_money, engine='openpyxl')
+                updated_data_money = pd.concat([existing_data_money, new_entry], ignore_index=True)
+            else:
+                updated_data_money = new_entry
 
-        updated_data_money.to_excel(filename_money, index=False, engine='openpyxl')
+            updated_data_money.to_excel(filename_money, index=False, engine='openpyxl')
 
-        # clientid_bank.xlsx 파일 처리
-        if os.path.exists(filename_bank):
-            existing_data_bank = pd.read_excel(filename_bank, engine='openpyxl')
-            updated_data_bank = pd.concat([existing_data_bank, new_entry], ignore_index=True)
-        else:
-            updated_data_bank = new_entry
+            # clientid_bank.xlsx 파일 처리
+            if os.path.exists(filename_bank):
+                existing_data_bank = pd.read_excel(filename_bank, engine='openpyxl')
+                updated_data_bank = pd.concat([existing_data_bank, new_entry], ignore_index=True)
+            else:
+                updated_data_bank = new_entry
 
-        updated_data_bank.to_excel(filename_bank, index=False, engine='openpyxl')
+            updated_data_bank.to_excel(filename_bank, index=False, engine='openpyxl')
 
-        # future_page로 리디렉션
-        return redirect(url_for('future_page'))
+            # JSON 응답 반환 (AJAX 요청 처리)
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True, 'message': '데이터가 성공적으로 저장되었습니다.'}), 200
+
+        except Exception as e:
+            # 오류 발생 시 JSON 응답 반환
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'message': f'오류 발생: {str(e)}'}), 500
+
+            return render_template('error.html', message=f"오류 발생: {str(e)}")
     
+
     # 추가 1. 기존 데이터를 로드하여 사용자에게 표시
     client_id = request.remote_addr
     filename_money = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_money.xlsx")

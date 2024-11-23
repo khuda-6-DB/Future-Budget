@@ -379,35 +379,12 @@
             window.open('mbti_page', 'MBTI 페이지', 'width=600,height=700,scrollbars=yes,resizable=yes');
         });
 
-        // cover7 클릭 시 서버로 데이터 체크 요청
+        // cover7 클릭 시 바로 future_page로 이동
         const cover7 = document.getElementById('cover7');
         cover7.addEventListener('click', () => {
-            // 서버에 데이터를 확인하기 위한 요청을 보냄
-            fetch('second_page', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    check_data: true  // 데이터를 확인하려는 의도임을 알림
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // 데이터가 있는 경우 future_page로 이동
-                    window.location.href = "future_page";
-                } else {
-                    // 데이터가 없으면 경고 메시지 출력
-                    alert("Step 1 ~ Step 3를 먼저 진행해주세요.");
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('데이터를 확인하는데 문제가 발생했습니다.');
-            });
+            // 바로 future_page로 이동
+            window.location.href = "future_page";
         });
-
 
         // 7초마다 슬라이드 전환
         setInterval(moveToNextSlide, 7000);
