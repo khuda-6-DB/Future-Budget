@@ -8,6 +8,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import numpy as np
+import json
 from datetime import datetime
 # 사용자 정의 함수
 from file import allowed_file
@@ -111,7 +112,7 @@ def past_page():
 def future_page():
     client_id = request.remote_addr
     filename_money = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_bank.xlsx")
-    popup_message = ""
+    popup_messages = []
 
     if os.path.exists(filename_money):
         # Excel 파일 로드
@@ -138,19 +139,12 @@ def future_page():
 
         # 주별 예산 계산
         if total_budget > 0:
-            # 현재 월의 총 일수 계산
             days_in_month = pd.Period(today, freq='M').days_in_month
-
-            # 일별 예산 계산
             daily_budget = total_budget / days_in_month
-
-            # 이번 주에 해당하는 일수 계산 (월 경계 고려)
             days_in_week = sum(
                 1 for day in pd.date_range(start_of_week, end_of_week)
                 if day.month == today.month
             )
-
-            # 주별 예산 계산
             weekly_budget = daily_budget * days_in_week
         else:
             weekly_budget = 0
@@ -158,19 +152,52 @@ def future_page():
 
         # 예산 초과 여부 확인
         if total_weekly_expense > weekly_budget:
-            popup_message = (
-                f"주의: 주별 지출이 예산을 초과했습니다! "
-                f"(총 지출: {total_weekly_expense}원, 주별 예산: {weekly_budget:.0f}원)"
+            popup_messages.append(
+                f"⚠️ 주의: 주별 지출이 예산을 초과했습니다! "
+                f"(총 지출: {total_weekly_expense:,}원, 주별 예산: {weekly_budget:,.0f}원)"
             )
         else:
-            popup_message = (
-                f"잘하고 있습니다! 주별 지출이 예산 내에 있습니다. "
-                f"(총 지출: {total_weekly_expense}원, 주별 예산: {weekly_budget:.0f}원)"
+            popup_messages.append(
+                f"✅ 잘하고 있습니다! 주별 지출이 예산 내에 있습니다. "
+                f"(총 지출: {total_weekly_expense:,}원, 주별 예산: {weekly_budget:,.0f}원)"
             )
+        
+        # 카테고리별 월별 예산 경고 추가
+        df['월'] = df['거래일시'].dt.month
+        current_month = today.month
+        current_month_data = df[df['월'] == current_month]
+        total_monthly_expense = current_month_data['출금액'].sum()
+        total_budget = float(money_dict.get(client_id, {}).get('예산', 0))
+
+        # budget_distribution을 사용하여 카테고리별 예산 계산
+        category_df, original_ratios, exclude_categories, filtered_ratios = calc_original_ratios(df)
+        budget_distribution, adjusted_df = adjust_weights_with_normalization_calculate_budget(
+            category_df, filtered_ratios, exclude_categories, total_budget
+        )
+
+        # 현재 월 데이터의 카테고리별 지출 합계 계산
+        category_monthly_sum = current_month_data.groupby('카테고리')['출금액'].sum()
+
+        # 상위 3개 카테고리 예산 확인
+        top_categories = sorted(budget_distribution.items(), key=lambda x: x[1], reverse=True)[:3]
+        for category, category_budget in top_categories:
+            actual_spent = category_monthly_sum.get(category, 0)  # 실제 지출
+            if actual_spent > category_budget:
+                # 예산 초과 메시지 추가
+                popup_messages.append(
+                    f"⚠️ {category} 초과! "
+                    f"(지출: {actual_spent:,.0f}원, 이번 달 예산: {category_budget:,.0f}원)"
+                )
+            else:
+                # 예산 잔액 메시지 추가
+                remaining_budget = category_budget - actual_spent
+                popup_messages.append(
+                    f"✅ {category} 예산 내 지출 "
+                    f"(남은 예산: {remaining_budget:,.0f}원, 지출: {actual_spent:,.0f}원)"
+                )
 
     # future_page.html 템플릿 렌더링
-    return render_template('future_page.html', popup_message=popup_message)
-
+    return render_template('future_page.html', popup_messages=json.dumps(popup_messages))
 
 @app.route('/monthly_expenditure/<year_month>')
 def monthly_expenditure(year_month):
