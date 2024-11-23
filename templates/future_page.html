@@ -305,11 +305,14 @@
             });
         });
 
-        // Flask에서 전달된 팝업 메시지 처리
-        const popupMessage = "{{ popup_message | safe }}";
-            if (popupMessage) {
-                alert(popupMessage);
-            }
+        // Flask에서 JSON으로 변환된 데이터를 안전하게 처리
+        const popupMessages = JSON.parse('{{ popup_messages | safe }}'); // JSON 문자열로 처리
+
+        if (popupMessages && Array.isArray(popupMessages)) {
+            // 메시지 배열을 한꺼번에 합쳐서 하나의 alert로 표시
+            const combinedMessage = popupMessages.join("\n");
+            alert(combinedMessage);
+        }
     </script>
 </body>
 </html>
