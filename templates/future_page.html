@@ -217,11 +217,29 @@
                 const dayDiv = document.createElement('div');
                 dayDiv.classList.add('day');
                 dayDiv.textContent = day;
+
                 dayDiv.onclick = () => {
                     const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    console.log(`Opening entry form for ${formattedDate}`);
+                    
                     // 새 창 열기
-                    window.open(`/add_entry/${formattedDate}`, "가계부 작성", "width=600,height=600,scrollbars=yes,resizable=yes");
+                    let childWindow = window.open(`/add_entry/${formattedDate}`, "가계부 작성", "width=600,height=600,scrollbars=yes,resizable=yes");
+
+                    if (!childWindow) {
+                        alert("팝업 창이 차단되었습니다. 브라우저 팝업 차단을 해제해주세요.");
+                        return;
+                    }
+
+                    // 자식 창 닫힘 감지
+                    const interval = setInterval(() => {
+                        if (childWindow && childWindow.closed) {
+                            clearInterval(interval); // 확인 중단
+                            console.log("Child window closed, reloading /future_page");
+                            window.location.href = '/future_page'; // 부모 창을 새로고침 또는 리디렉션
+                        }
+                    }, 500); // 500ms 간격으로 닫힘 여부 확인
                 };
+
                 weekRow.appendChild(dayDiv);
 
                 if (weekRow.children.length === 7) {
@@ -283,6 +301,7 @@
         </form>
     </div>
 
+
     <script>
         // "미래가 궁금하신가요?" 버튼 클릭 이벤트 처리
         document.getElementById("futureButton").addEventListener("click", () => {
@@ -307,6 +326,7 @@
             });
         });
     </script>
+
 
     <div class="section section5">
         <h4>경희대학교 데이터 분석/AI 중앙동아리 KHUDA</h4>
