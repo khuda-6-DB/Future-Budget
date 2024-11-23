@@ -134,6 +134,33 @@
             text-align: center;
         }
 
+        /* 코치마크 스타일 */
+        .coachmark {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            display: none; /* 처음에는 숨겨둠 */
+            z-index: 20;
+        }
+
+        /* 연월 위 코치마크 */
+        .coachmark-month {
+            top: 185px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+        }
+
+        /* 캘린더 밑 코치마크 */
+        .coachmark-calendar {
+            top: 400px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+        }
     </style>
 </head>
 <body>
@@ -162,6 +189,10 @@
             <button class="view-trends-button" onclick="openMonthlyTrendGraph()">월간 소비 동향 확인</button>
         </div>
     </div>
+
+    <!-- 코치마크 요소 추가 -->
+    <div class="coachmark coachmark-month" id="coachmarkMonth">여기를 누르면 월별 소비 동향을 볼 수 있어요!</div>
+    <div class="coachmark coachmark-calendar" id="coachmarkCalendar">날짜를 누르면 주별 소비 동향을 볼 수 있어요!</div>
 
     <!-- 하단 회색 영역 추가 -->
     <div class="section section5">
@@ -280,8 +311,21 @@
             renderCalendar();
         }
 
+        // 코치마크 보이기
+        window.onload = function() {
+            document.getElementById('coachmarkMonth').style.display = 'block';
+            document.getElementById('coachmarkCalendar').style.display = 'block';
+        };
+
+        // 화면 클릭 시 코치마크 숨기기
+        document.body.addEventListener('click', function() {
+            document.getElementById('coachmarkMonth').style.display = 'none';
+            document.getElementById('coachmarkCalendar').style.display = 'none';
+        });
+
         renderCalendar();
     </script>
 </body>
 </html>
+
 
