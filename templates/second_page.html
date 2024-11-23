@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Step 1</title>
+    <link rel="icon" href="/static/images/favicon.png" type="image/png"> <!-- .png 파일 -->
 
     <style>
         @font-face {
@@ -110,7 +111,7 @@
         }
 
         select {
-            font-size: 14px;
+            font-size: 16px;
             padding: 8px;
             width: 180px;
         }
@@ -181,7 +182,7 @@
 
     <!-- 로딩 알림 -->
     <div id="loading-overlay" class="loading-overlay">
-        파일 업로드 중... 잠시만 기다려 주세요.
+        파일 처리 중.. 잠시만 기다려 주세요.
     </div>
 
     <!-- 로고 영역 -->
@@ -234,7 +235,7 @@
         <h3>엑셀 파일 업로드</h3>
         <form id="file-upload-form" enctype="multipart/form-data">
             <div class="form-row">
-                <label for="bank_type">은행 타입:</label>
+                <label for="bank_type">은행 타입: </label>
                 <select name="bank_type" id="bank_type" required>
                     <option value="국민은행">국민은행</option>
                     <option value="농협은행">농협은행</option>

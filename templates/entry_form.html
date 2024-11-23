@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>가계부 작성</title>
+    <link rel="icon" href="/static/images/favicon.png" type="image/png"> <!-- .png 파일 -->
     <style>
         @font-face {
             font-family: 'S-CoreDream-3Light';
@@ -17,23 +18,33 @@
             padding: 0;
             height: 100%;
             font-family: 'S-CoreDream-3Light', Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* 나머지 콘텐츠 중앙 정렬 */
-            justify-content: center; /* 세로 방향 중앙 정렬 */
             width: 100%;
             overflow-x: hidden;
         }
 
-        /* 페이지 중앙을 감싸는 컨테이너 */
-        .container {
+        /* 페이지 상단 영역 */
+        .header {
             width: 100%;
-            max-width: 800px; /* 최대 너비 제한 */
+            max-width: 800px;
             padding: 20px;
             margin: 20px;
             border-radius: 10px;
             background-color: #ffffff;
+            margin-left: -25px;
             text-align: center;  /* 중앙 정렬 */
+        }
+
+        /* 페이지 내용 (스크롤 가능) */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            text-align: center;
+            background-color: #ffffff;
+            border-radius: 10px;
+            margin-left: -25px;
+            margin-top: -50px;
+            overflow-y: auto; /* 내용이 많을 경우 스크롤 */
         }
 
         /* 폼 스타일 */
@@ -112,18 +123,6 @@
             transform: scale(1.1);
         }
 
-        /* 링크 스타일 */
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            text-decoration: none;
-            color: #007BFF;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
         /* form-row 스타일 추가 */
         .form-row {
             margin-bottom: 20px; /* 각 입력 항목 간 간격 */
@@ -142,18 +141,20 @@
             width: 100%;
             padding: 8px;
             font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fff;
+            margin-left: auto;
+            margin-right: auto;
         }
 
     </style>
 </head>
 <body>
-    <!-- 가계부 작성 페이지 내용 -->
-    <div class="container">
+    <!-- 상단 영역 -->
+    <div class="header">
         <h1>{{ date }} 가계부 작성</h1>
+    </div>
 
+    <!-- 내용 영역 -->
+    <div class="container">
         <form action="/add_entry/{{ date }}" method="post">
             <input type="hidden" name="date" value="{{ date }}">
 
@@ -201,7 +202,7 @@
             {% for entry in entries %}
             <tr>
                 <td>{{ entry['카테고리'] }}</td>
-                <td>{{ entry['사용금액'] }}</td>
+                <td>{{ entry['출금액'] }}</td>
                 <td>
                     <form action="/delete_current_entry/{{ loop.index0 }}" method="post" style="display:inline;">
                         <input type="hidden" name="date" value="{{ date }}">
@@ -211,20 +212,7 @@
             </tr>
             {% endfor %}
         </table>
-        
-        <!-- 캘린더로 돌아가기 -->
-        <a href="/future_page">캘린더로 돌아가기</a>
     </div>
-
-    <script>
-        // 로고 클릭 시 경고 창
-        document.getElementById('logo-link').addEventListener('click', function(event) {
-            const confirmation = confirm("메인 페이지로 돌아가시겠습니까?");
-            if (!confirmation) {
-                event.preventDefault();
-            }
-        });
-    </script>
 
 </body>
 </html>
