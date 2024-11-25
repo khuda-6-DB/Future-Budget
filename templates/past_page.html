@@ -108,9 +108,28 @@
             background-color: #002953;
         }
 
+        /* 분석 완료 페이지로 돌아가기 버튼 스타일 */
+        .prev-button {
+            margin-top: 20px; /* 위쪽 여백 줄임 */
+            padding: 10px 30px; /* 버튼 크기 줄임 */
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 16px; /* 텍스트 크기 줄임 */
+            text-align: center;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .prev-button:hover {
+            background-color: #002953;
+        }
+
         /* 버튼을 중앙에 배치하기 위한 스타일 */
         .button-container {
             display: flex;
+            flex-direction: column; /* 세로로 정렬 */
             justify-content: center; /* 수평 중앙 정렬 */
             align-items: center; /* 수직 중앙 정렬 */
             margin-top: 30px;
@@ -187,6 +206,7 @@
         <!-- 월별 소비 동향 보러가기 버튼을 감싸는 div (중앙 정렬) -->
         <div class="button-container">
             <button class="view-trends-button" onclick="openMonthlyTrendGraph()">월간 소비 동향 확인</button>
+            <button id="prev-button" type="button" class="prev-button">분석 완료 페이지로 돌아가기</button>
         </div>
     </div>
 
@@ -202,6 +222,14 @@
     </div>
 
     <script>
+        document.getElementById('prev-button').addEventListener('click', function(event) {
+            const confirmation = window.confirm("분석 완료 페이지로 돌아가시겠습니까?");
+            if (confirmation) {
+                window.location.href = "{{ url_for('fourth_page') }}";  // index 페이지로 이동
+            } else {
+                event.preventDefault();  // 확인을 클릭하지 않으면 페이지 이동을 막음
+            }
+        });
         // 로고 클릭 시 확인 팝업
         document.getElementById('logo-link').addEventListener('click', function(event) {
             const confirmation = confirm("메인 페이지로 돌아가시겠습니까?");
@@ -327,5 +355,6 @@
     </script>
 </body>
 </html>
+
 
 
