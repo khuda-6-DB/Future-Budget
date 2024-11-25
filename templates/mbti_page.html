@@ -4,21 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBTI Page</title>
+    <link rel="icon" href="/static/images/favicon.png" type="image/png"> <!-- .png 파일 -->
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        @font-face {
+            font-family: 'S-CoreDream-3Light';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-3Light.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'S-CoreDream-3Light', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
             text-align: center;
-            margin-top: 50px;
+            overflow-x: hidden; /* 가로 스크롤을 숨깁니다 */
+            margin-top: 10px;
         }
         img {
-            width: 300px;
+            width: 500px;
             height: auto;
-            margin-top: 20px;
+            margin: 20px auto;  /* 자동으로 좌우 중앙 정렬 */
+            display: block;     /* 이미지를 블록 요소로 설정하여 margin:auto 적용 */
         }
     </style>
 </head>
 <body>
-    <h1>당신의 소비유형 mbti는?</h1>
+    <h1>당신의 소비성향 mbti는?</h1>
     <p id="category-description"></p>
     <img id="category-image" src="" alt="카테고리 이미지">
 
@@ -30,7 +46,7 @@
         const categoryImages = {
             "식비": "/static/images/food.jpg",
             "카페, 간식": "/static/images/cafe.jpg",
-            "편의점, 마트": "/static/mages/store.jpg",
+            "편의점, 마트": "/static/images/store.jpg",
             "술, 유흥": "/static/images/drink.jpg",
             "생활, 쇼핑": "/static/images/shopping.jpg",
             "패션, 뷰티": "/static/images/fashion.jpg",
@@ -43,7 +59,7 @@
         };
 
         // HTML에 데이터 반영
-        document.getElementById("category-description").innerText = `가장 높은 비율의 카테고리: ${topCategory}`;
+        document.getElementById("category-description").innerText = `소비 비율이 가장 높은 카테고리: ${topCategory}`;
         document.getElementById("category-image").src = categoryImages[topCategory] || "images/default.jpg";
     </script>
 </body>

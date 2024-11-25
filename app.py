@@ -8,20 +8,22 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import numpy as np
+import json
 from datetime import datetime
 # 사용자 정의 함수
 from file import allowed_file
 from bank_pre import preprocess
-from visualization import monthly_consumption, monthly_trend, plot_monthly_budget_and_expenses
-from category_ratio import prepare_data, redistribute_excluded_categories
+from visualization import monthly_consumption, monthly_trend_picture, plot_monthly_budget_and_expenses
+from category_ratio import prepare_data, redistribute_excluded_categories, load_data, get_top_category
 from budget_distribution import calc_original_ratios, adjust_weights_with_normalization_calculate_budget,redistribute_ratios
 
 # 설치된 한글 폰트 경로 설정 (예: 맑은 고딕)
-font_path = 'SCDream2.otf'  # Windows
+font_path = '/Users/nyeong/Desktop/new/SCDream2.otf'  # Windows
 # Linux의 경우: '/usr/share/fonts/truetype/nanum/NanumGothic.ttf'
 
 app = Flask(__name__, static_url_path='/static')
 app.config['UPLOAD_FOLDER'] = './uploads'
+app.config['SECRET_KEY'] = os.urandom(24)
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 app.config['ALLOWED_EXTENSIONS'] = {'xls', 'xlsx'}
@@ -53,6 +55,7 @@ def second_page():
         return jsonify({'error': 'Invalid file type'}), 400
     
     return render_template('second_page.html')
+
 
 # 예산 저장 페이지
 money_dict = {}
@@ -110,7 +113,7 @@ def past_page():
 def future_page():
     client_id = request.remote_addr
     filename_money = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_bank.xlsx")
-    popup_message = ""
+    popup_messages = []
 
     if os.path.exists(filename_money):
         # Excel 파일 로드
@@ -137,19 +140,12 @@ def future_page():
 
         # 주별 예산 계산
         if total_budget > 0:
-            # 현재 월의 총 일수 계산
             days_in_month = pd.Period(today, freq='M').days_in_month
-
-            # 일별 예산 계산
             daily_budget = total_budget / days_in_month
-
-            # 이번 주에 해당하는 일수 계산 (월 경계 고려)
             days_in_week = sum(
                 1 for day in pd.date_range(start_of_week, end_of_week)
                 if day.month == today.month
             )
-
-            # 주별 예산 계산
             weekly_budget = daily_budget * days_in_week
         else:
             weekly_budget = 0
@@ -157,24 +153,57 @@ def future_page():
 
         # 예산 초과 여부 확인
         if total_weekly_expense > weekly_budget:
-            popup_message = (
-                f"주의: 주별 지출이 예산을 초과했습니다! "
-                f"(총 지출: {total_weekly_expense}원, 주별 예산: {weekly_budget:.0f}원)"
+            popup_messages.append(
+                f"⚠️ 주의: 주별 지출이 예산을 초과했습니다! "
+                f"(총 지출: {total_weekly_expense:,}원, 주별 예산: {weekly_budget:,.0f}원)"
             )
         else:
-            popup_message = (
-                f"잘하고 있습니다! 주별 지출이 예산 내에 있습니다. "
-                f"(총 지출: {total_weekly_expense}원, 주별 예산: {weekly_budget:.0f}원)"
+            popup_messages.append(
+                f"✅ 잘하고 있습니다! 주별 지출이 예산 내에 있습니다. "
+                f"(총 지출: {total_weekly_expense:,}원, 주별 예산: {weekly_budget:,.0f}원)"
             )
+        
+        # 카테고리별 월별 예산 경고 추가
+        df['월'] = df['거래일시'].dt.month
+        current_month = today.month
+        current_month_data = df[df['월'] == current_month]
+        total_monthly_expense = current_month_data['출금액'].sum()
+        total_budget = float(money_dict.get(client_id, {}).get('예산', 0))
+
+        # budget_distribution을 사용하여 카테고리별 예산 계산
+        category_df, original_ratios, exclude_categories, filtered_ratios = calc_original_ratios(df)
+        budget_distribution, adjusted_df = adjust_weights_with_normalization_calculate_budget(
+            category_df, filtered_ratios, exclude_categories, total_budget
+        )
+
+        # 현재 월 데이터의 카테고리별 지출 합계 계산
+        category_monthly_sum = current_month_data.groupby('카테고리')['출금액'].sum()
+
+        # 상위 3개 카테고리 예산 확인
+        top_categories = sorted(budget_distribution.items(), key=lambda x: x[1], reverse=True)[:3]
+        for category, category_budget in top_categories:
+            actual_spent = category_monthly_sum.get(category, 0)  # 실제 지출
+            if actual_spent > category_budget:
+                # 예산 초과 메시지 추가
+                popup_messages.append(
+                    f"⚠️ {category} 초과! "
+                    f"(지출: {actual_spent:,.0f}원, 이번 달 예산: {category_budget:,.0f}원)"
+                )
+            else:
+                # 예산 잔액 메시지 추가
+                remaining_budget = category_budget - actual_spent
+                popup_messages.append(
+                    f"✅ {category} 예산 내 지출 "
+                    f"(남은 예산: {remaining_budget:,.0f}원, 지출: {actual_spent:,.0f}원)"
+                )
 
     # future_page.html 템플릿 렌더링
-    return render_template('future_page.html', popup_message=popup_message)
-
+    return render_template('future_page.html', popup_messages=json.dumps(popup_messages))
 
 @app.route('/monthly_expenditure/<year_month>')
 def monthly_expenditure(year_month):
     client = request.remote_addr
-    result = monthly_consumption(client, year_month, font_path)
+    result = monthly_consumption(client, font_path, year_month)
     return result
 
 @app.route('/monthly_trend')
@@ -185,54 +214,66 @@ def monthly_trend():
     if not os.path.exists(file_path):
         return "No data file available."
 
-    img_url = monthly_trend(client_id, file_path, font_path)
+    img_url = monthly_trend_picture(client_id, font_path)
     return render_template('monthly_trend.html', img_path=img_url)
 
 
 
 @app.route('/add_entry/<date>', methods=['GET', 'POST'])
 def add_entry(date):
+    client_id = request.remote_addr
+    filename_money = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_money.xlsx")
+    filename_bank = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_bank.xlsx")
+
     if request.method == 'POST':
-        # 입력 받은 데이터 가져오기
-        category = request.form['category']
-        amount = int(request.form['amount'])
-        client_id = request.remote_addr
-        filename_money = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_money.xlsx")
-        filename_bank = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_bank.xlsx")
+        try:
+            # 입력 받은 데이터 가져오기
+            category = request.form['category']
+            amount = int(request.form['amount'])
+            action = request.form.get('action', 'submit')  # action 값을 확인 (submit 또는 confirm)
 
-        # 시간 제거 후 날짜 처리
-        date_only = pd.to_datetime(date).date()
+            # 날짜 처리
+            date_only = pd.to_datetime(date).date()
 
-        # 데이터프레임 생성
-        new_entry = pd.DataFrame({
-            '거래일시': [date_only],  # 시간 없이 날짜만 저장
-            '거래내용': ['입력'],
-            '출금액': [amount],
-            '잔액': [None],  # 잔액 필드는 비워두거나 필요시 계산
-            '카테고리': [category]
-        })
+            # 데이터프레임 생성
+            new_entry = pd.DataFrame({
+                '거래일시': [date_only],
+                '거래내용': ['입력'],
+                '출금액': [amount],
+                '잔액': [None],  # 잔액 필드는 비워두거나 필요시 계산
+                '카테고리': [category]
+            })
 
-        # clientid_money.xlsx 파일 처리
-        if os.path.exists(filename_money):
-            existing_data_money = pd.read_excel(filename_money, engine='openpyxl')
-            updated_data_money = pd.concat([existing_data_money, new_entry], ignore_index=True)
-        else:
-            updated_data_money = new_entry
+            # clientid_money.xlsx 파일 처리
+            if os.path.exists(filename_money):
+                existing_data_money = pd.read_excel(filename_money, engine='openpyxl')
+                updated_data_money = pd.concat([existing_data_money, new_entry], ignore_index=True)
+            else:
+                updated_data_money = new_entry
 
-        updated_data_money.to_excel(filename_money, index=False, engine='openpyxl')
+            updated_data_money.to_excel(filename_money, index=False, engine='openpyxl')
 
-        # clientid_bank.xlsx 파일 처리
-        if os.path.exists(filename_bank):
-            existing_data_bank = pd.read_excel(filename_bank, engine='openpyxl')
-            updated_data_bank = pd.concat([existing_data_bank, new_entry], ignore_index=True)
-        else:
-            updated_data_bank = new_entry
+            # clientid_bank.xlsx 파일 처리
+            if os.path.exists(filename_bank):
+                existing_data_bank = pd.read_excel(filename_bank, engine='openpyxl')
+                updated_data_bank = pd.concat([existing_data_bank, new_entry], ignore_index=True)
+            else:
+                updated_data_bank = new_entry
 
-        updated_data_bank.to_excel(filename_bank, index=False, engine='openpyxl')
+            updated_data_bank.to_excel(filename_bank, index=False, engine='openpyxl')
 
-        # future_page로 리디렉션
-        return redirect(url_for('future_page'))
+            # JSON 응답 반환 (AJAX 요청 처리)
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True, 'message': '데이터가 성공적으로 저장되었습니다.'}), 200
+
+        except Exception as e:
+            # 오류 발생 시 JSON 응답 반환
+            if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'message': f'오류 발생: {str(e)}'}), 500
+
+            return render_template('error.html', message=f"오류 발생: {str(e)}")
     
+
     # 추가 1. 기존 데이터를 로드하여 사용자에게 표시
     client_id = request.remote_addr
     filename_money = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_money.xlsx")
@@ -363,13 +404,22 @@ def clear_data():
     
 @app.route('/mbti_page', methods=['GET', 'POST'])
 def mbti_page():
-    top_category = session.get('top_category')
+    client_id = request.remote_addr
+    processed_file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{client_id}_bank.xlsx")
 
-    if request.method == 'POST':
-        return render_template('mbti_page.html', top_category=top_category)
+    # 파일 존재 여부 확인 및 처리
+    if os.path.exists(processed_file_path):
+        data = load_data(processed_file_path)  # 데이터 로드
+        if data is not None and not data.empty:
+            top_category = get_top_category(data)  # 최상위 카테고리 계산
+            session['top_category'] = top_category
+        else:
+            top_category = "데이터를 읽는 중 오류 발생"
+    else:
+        top_category = "업로드된 데이터 없음"
 
     return render_template('mbti_page.html', top_category=top_category)
-    
+
 # Flask 라우트 추가
 @app.route('/future_budget_visualization', methods=['POST'])
 def future_budget_visualization():
@@ -423,7 +473,7 @@ def future_budget_visualization():
 
 
     img_path = plot_monthly_budget_and_expenses(current_month_data,budget_distribution,exclude_categories, font_path, client_id)
-    return render_template('future_budget_visualization.html', img_path=img_path)
+    return jsonify({"img_path": img_path})
 
 
 if __name__ == '__main__':

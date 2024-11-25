@@ -39,19 +39,20 @@ def redistribute_ratios(df, original_ratios, exclude_categories):
     return df
 
 
-def adjust_weights_with_normalization_calculate_budget(df,filtered_ratios, category, budget):
-    categories = list(filtered_ratios.items())
-    decrease_factor = 0.7
-    selected_categories = [categories.index(cat) for cat in category if cat in categories]
-    for idx in selected_categories:
-        df.at[idx, '가중치'] *= decrease_factor
+def adjust_weights_with_normalization_calculate_budget(df, filtered_ratios, category, budget):
+    decrease_factor = 0.7  # 특정 카테고리의 가중치를 줄이기 위한 감소율
+    for cat in category:
+        if cat in df['카테고리'].values:
+            idx = df[df['카테고리'] == cat].index[0]
+            df.at[idx, '가중치'] *= decrease_factor
 
+    # 가중치에 따라 조정된 비율 계산
     df['조정된 비율'] = df['원래 비율'] * df['가중치']
     total_adjusted_ratio = df['조정된 비율'].sum()
     df['최종 비율'] = (df['조정된 비율'] / total_adjusted_ratio) * 100
 
-    money = budget
-    budget_distribution = (df['최종 비율'] / 100 * money).to_dict()
+    # 예산 배분 계산
+    budget_distribution = (df.set_index('카테고리')['최종 비율'] / 100 * budget).to_dict()
 
     return budget_distribution, df
 

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>월별 예산 시각화</title>
+    <link rel="icon" href="/static/images/favicon.png" type="image/png"> <!-- .png 파일 -->
     <style>
         img {
             display: block;
@@ -13,7 +14,6 @@
     </style>
 </head>
 <body>
-    <h1>월별 예산 시각화</h1>
     {% if img_path %}
         <img src="{{ img_path }}" alt="월별 예산과 지출 시각화">
     {% else %}

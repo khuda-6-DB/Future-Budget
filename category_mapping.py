@@ -1,7 +1,7 @@
 import re
 from sentence_transformers import SentenceTransformer, util
 import openai
-openai.api_key = "api"
+openai.api_key = "API"
 client = openai
 
 # 1차 카테고리 분류 함수
