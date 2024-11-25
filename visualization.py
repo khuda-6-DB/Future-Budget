@@ -124,7 +124,14 @@ def plot_monthly_budget_and_expenses(current_month_data,budget_distribution, exc
     categories_name = list(monthly_expense['카테고리'].values())
     categories = list(budget_distribution.keys())
 
-    expense_values = [monthly_expense['지출액'].get(cat, 0) for cat in categories]
+    # 역매핑 딕셔너리 생성
+    category_to_number = {v: k for k, v in filtered_categories.items()}
+
+    # categories 리스트를 숫자로 변환
+    categories_numbers = [category_to_number[cat] for cat in categories]
+    expense_values = [monthly_expense['지출액'].get(cat, 0) for cat in categories_numbers]
+
+    print(expense_values)
     budget_values = [budget_distribution[cat] for cat in categories]
     remaining_budget = [budget_distribution[cat] - monthly_expense['지출액'].get(cat, 0) for cat in categories]
 
@@ -151,7 +158,6 @@ def plot_monthly_budget_and_expenses(current_month_data,budget_distribution, exc
         
         # 텍스트 박스 내용 생성
         text = f'예산: {budget:,.0f}원\n지출: {expense:,.0f}원\n남은 돈: {remaining:,.0f}원'
-        print(text_position)
         #height_offset = 200 if text_position == budget+expense else 10
         height_offset = 10
         # 박스에 텍스트 추가
