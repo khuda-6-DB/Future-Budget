@@ -131,9 +131,14 @@ def plot_monthly_budget_and_expenses(current_month_data,budget_distribution, exc
     categories_numbers = [category_to_number[cat] for cat in categories]
     expense_values = [monthly_expense['지출액'].get(cat, 0) for cat in categories_numbers]
 
-    print(expense_values)
+    print("\n expense_values: ", expense_values)
+    category_expense = {
+    monthly_expense['카테고리'][key]: value for key, value in monthly_expense['지출액'].items()
+    }   
     budget_values = [budget_distribution[cat] for cat in categories]
-    remaining_budget = [budget_distribution[cat] - monthly_expense['지출액'].get(cat, 0) for cat in categories]
+    print("\n budget_values: ", budget_values)
+    remaining_budget = [budget_distribution[cat] - category_expense.get(cat, 0) for cat in categories]
+    print("\n remaining_budget: ", remaining_budget)
 
     fig, ax = plt.subplots(figsize=(15, 10))
     bars_expense = ax.bar(categories, expense_values, color='darkblue', label='지출')
