@@ -132,6 +132,22 @@
             background-color: #002953;
         }
 
+        .prev-button {
+            padding: 10px 30px;
+            font-size: 16px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .prev-button:hover {
+            background-color: #002953;
+        }
+
         .section5 {
             display: flex;
             flex-direction: column;
@@ -172,7 +188,7 @@
     </div>
 
     <!-- 예산 그래프 -->
-<div class="future_budget_graph" id="budgetGraph"></div>
+    <div class="future_budget_graph" id="budgetGraph"></div>
 
     <!-- 달력 -->
     <div class="calendar">
@@ -255,7 +271,6 @@
             }
         }
 
-
         function changeMonth(offset) {
             currentDate.setMonth(currentDate.getMonth() + offset);
             renderCalendar(currentDate);
@@ -299,10 +314,20 @@
         <form method="post" action="/clear_data" onsubmit="return confirm('정말 데이터를 삭제하시겠습니까?')">
             <button type="submit" class="delete-button">가계부 초기화</button>
         </form>
+        <!-- 분석 완료 페이지로 돌아가기 버튼 추가 -->
+        <button id="prev-button" class="prev-button" type="button">분석 완료 페이지로 돌아가기</button>
     </div>
 
 
     <script>
+        document.getElementById('prev-button').addEventListener('click', function(event) {
+            const confirmation = window.confirm("분석 완료 페이지로 돌아가시겠습니까?");
+            if (confirmation) {
+                window.location.href = "{{ url_for('fourth_page') }}";  // index 페이지로 이동
+            } else {
+                event.preventDefault();  // 확인을 클릭하지 않으면 페이지 이동을 막음
+            }
+        });
         // "미래가 궁금하신가요?" 버튼 클릭 이벤트 처리
         document.getElementById("futureButton").addEventListener("click", () => {
             // 버튼 클릭 시 fetch 요청으로 데이터를 가져옴
@@ -316,7 +341,7 @@
             .then(data => {
                 if (data.img_path) {
                     const graphDiv = document.getElementById('budgetGraph');
-                    graphDiv.innerHTML = `<img src="${data.img_path}" alt="월별 예산과 지출 시각화" style="max-width: 100%; height: auto;">`;
+                    graphDiv.innerHTML = `<img src="${data.img_path}" alt="월별 예산과 지출 시각화" style="max-width: 100%; height: auto;">` ;
                 } else {
                     console.error("img_path가 존재하지 않습니다.");
                 }
