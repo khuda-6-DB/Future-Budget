@@ -395,12 +395,8 @@ def clear_data():
             deleted_files.append(filename)
         else:
             print(f"File not found: {filename}")
-
-    if deleted_files:
-        print(f"Deleted files: {deleted_files}")
-        return "데이터가 삭제되었습니다.", 200
-    else:
-        return "삭제할 데이터가 없습니다.", 404
+            
+    return redirect(url_for('future_page'))
     
 @app.route('/mbti_page', methods=['GET', 'POST'])
 def mbti_page():
