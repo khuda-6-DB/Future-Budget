@@ -132,6 +132,22 @@
             background-color: #002953;
         }
 
+        .prev-button {
+            padding: 10px 30px;
+            font-size: 16px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .prev-button:hover {
+            background-color: #002953;
+        }
+
         .section5 {
             display: flex;
             flex-direction: column;
@@ -172,7 +188,7 @@
     </div>
 
     <!-- 예산 그래프 -->
-<div class="future_budget_graph" id="budgetGraph"></div>
+    <div class="future_budget_graph" id="budgetGraph"></div>
 
     <!-- 달력 -->
     <div class="calendar">
@@ -217,11 +233,29 @@
                 const dayDiv = document.createElement('div');
                 dayDiv.classList.add('day');
                 dayDiv.textContent = day;
+
                 dayDiv.onclick = () => {
                     const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                    console.log(`Opening entry form for ${formattedDate}`);
+                    
                     // 새 창 열기
-                    window.open(`/add_entry/${formattedDate}`, "가계부 작성", "width=600,height=600,scrollbars=yes,resizable=yes");
+                    let childWindow = window.open(`/add_entry/${formattedDate}`, "가계부 작성", "width=600,height=600,scrollbars=yes,resizable=yes");
+
+                    if (!childWindow) {
+                        alert("팝업 창이 차단되었습니다. 브라우저 팝업 차단을 해제해주세요.");
+                        return;
+                    }
+
+                    // 자식 창 닫힘 감지
+                    const interval = setInterval(() => {
+                        if (childWindow && childWindow.closed) {
+                            clearInterval(interval); // 확인 중단
+                            console.log("Child window closed, reloading /future_page");
+                            window.location.href = '/future_page'; // 부모 창을 새로고침 또는 리디렉션
+                        }
+                    }, 500); // 500ms 간격으로 닫힘 여부 확인
                 };
+
                 weekRow.appendChild(dayDiv);
 
                 if (weekRow.children.length === 7) {
@@ -236,7 +270,6 @@
                 calendarDays.appendChild(weekRow);
             }
         }
-
 
         function changeMonth(offset) {
             currentDate.setMonth(currentDate.getMonth() + offset);
@@ -281,9 +314,19 @@
         <form method="post" action="/clear_data" onsubmit="return confirm('정말 데이터를 삭제하시겠습니까?')">
             <button type="submit" class="delete-button">가계부 초기화</button>
         </form>
+        <!-- 분석 완료 페이지로 돌아가기 버튼 추가 -->
+        <button id="prev-button" class="prev-button" type="button">분석 완료 페이지로 돌아가기</button>
     </div>
 
     <script>
+        document.getElementById('prev-button').addEventListener('click', function(event) {
+            const confirmation = window.confirm("분석 완료 페이지로 돌아가시겠습니까?");
+            if (confirmation) {
+                window.location.href = "{{ url_for('fourth_page') }}";  // index 페이지로 이동
+            } else {
+                event.preventDefault();  // 확인을 클릭하지 않으면 페이지 이동을 막음
+            }
+        });
         // "미래가 궁금하신가요?" 버튼 클릭 이벤트 처리
         document.getElementById("futureButton").addEventListener("click", () => {
             // 버튼 클릭 시 fetch 요청으로 데이터를 가져옴
@@ -297,7 +340,7 @@
             .then(data => {
                 if (data.img_path) {
                     const graphDiv = document.getElementById('budgetGraph');
-                    graphDiv.innerHTML = `<img src="${data.img_path}" alt="월별 예산과 지출 시각화" style="max-width: 100%; height: auto;">`;
+                    graphDiv.innerHTML = `<img src="${data.img_path}" alt="월별 예산과 지출 시각화" style="max-width: 100%; height: auto;">` ;
                 } else {
                     console.error("img_path가 존재하지 않습니다.");
                 }
@@ -307,6 +350,7 @@
             });
         });
     </script>
+
 
     <div class="section section5">
         <h4>경희대학교 데이터 분석/AI 중앙동아리 KHUDA</h4>
