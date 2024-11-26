@@ -34,6 +34,7 @@
   - MAE: 7.63
   - RMSE: 7.85
 
+
 ## :three: 기능 구현
 ![image](https://github.com/user-attachments/assets/29477b65-038c-4f45-ba55-75d15ab7c8cd)
 
@@ -43,6 +44,7 @@
 <img src="https://github.com/user-attachments/assets/2a458534-ba3d-4ff1-b583-394f3d024e14" width="50%" alt="이미지 2">
 
 [https://studio.youtube.com/video/I0gngBUHCps/edit](https://studio.youtube.com/video/I0gngBUHCps/edit)
+
 
 ## :five: 팀원 소개
 <table>
