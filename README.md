@@ -26,6 +26,7 @@
 ### 3. 데이터 모델링
 - LSTM 사용
 <img src="https://github.com/user-attachments/assets/92d043a9-d715-4f4d-a7f7-c2310ccb1222" width="70%" alt="LSTM 사용">
+
 - 모델 성능
   - MAE: 7.63
   - RMSE: 7.85
