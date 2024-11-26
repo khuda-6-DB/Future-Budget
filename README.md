@@ -8,7 +8,7 @@
 
 ![image](https://github.com/user-attachments/assets/04cd9272-3e30-4dcb-957c-2ab4125b35a1)
 대학생은 대부분 제한된 예산에서 생활하는 경우가 많고, 사용자마다 일정한 소비 패턴을 보입니다. 수입에 비해서 과소비 경향이 보인다면 어떤 카테고리에서 과소비를 하는지 분석하고 실질적인 해결 방법을 제안해주는 개인화된 지출 관리 추천 시스템을 만들고자 하였습니다!  
-
+<br/>
 
 ## :two: 데이터 분석
 ### 1. 데이터 전처리
@@ -21,6 +21,8 @@
 > RESULT1: 카테고리별 지출
 
 <img src="https://github.com/user-attachments/assets/d3e215bd-c56c-423e-90ca-0eb4251463c9" width="70%" alt="카테고리별 지출">
+
+<br/>
 
 > RESULT2: 전체 소비 동향
 
@@ -45,6 +47,7 @@
 
 [https://studio.youtube.com/video/I0gngBUHCps/edit](https://studio.youtube.com/video/I0gngBUHCps/edit)
 
+<br/>
 
 ## :five: 팀원 소개
 <table>
