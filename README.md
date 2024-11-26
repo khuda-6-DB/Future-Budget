@@ -39,3 +39,41 @@
 <img src="https://github.com/user-attachments/assets/2a458534-ba3d-4ff1-b583-394f3d024e14" width="50%" alt="이미지 2">
 
 [https://studio.youtube.com/video/I0gngBUHCps/edit](https://studio.youtube.com/video/I0gngBUHCps/edit)
+
+## :five: 팀원 소개
+<table>
+  <tbody>
+    <tr>
+      <!-- 최소영 -->
+      <td align="center">
+        <a href="https://github.com/gitchlthdud">
+          <img src="https://avatars.githubusercontent.com/u/160228065?s=400&u=9f5549fa482168dde89d7a41f3155b1d009ede0b&v=4" width="100px" alt="FE 팀장"/><br />
+          <sub><b>최소영</b></sub>
+        </a>
+      </td>
+      <!-- 이제희 -->
+      <td align="center">
+        <a href="https://github.com/pinkkj">
+          <img src="https://avatars.githubusercontent.com/u/103947888?v=4" width="100px" alt="FE 팀원 1"/><br />
+          <sub><b>이제희</b></sub>
+        </a>
+      </td>
+      <!-- 이준영 -->
+      <td align="center">
+        <a href="https://github.com/junyeong-khu">
+          <img src="https://avatars.githubusercontent.com/u/175942581?v=4" width="100px" alt="FE 팀원 2"/><br />
+          <sub><b>이준영</b></sub>
+        </a>
+      </td>
+      <!-- 허채은 -->
+      <td align="center">
+        <a href="[https://github.com/chereunii](https://github.com/chereunii)">
+          <img src="[https://github.com/FE팀원3_프로필이미지링크](https://avatars.githubusercontent.com/u/174696900?v=4)" width="100px" alt="FE 팀원 3"/><br />
+          <sub><b>허채은</b></sub>
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
