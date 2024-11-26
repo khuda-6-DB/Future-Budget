@@ -21,7 +21,7 @@
 
 > RESULT2: 전체 소비 동향
 
-<img src="https://github.com/user-attachments/assets/f00c793d-d473-4bd3-bf3e-b8778e803fdc" width="70%" alt="전체 소비 동향">
+<img src="https://github.com/user-attachments/assets/d2fdf07e-30f4-40a5-9e44-47663cdb904b" width="70%" alt="전체 소비 동향">
 
 ### 3. 데이터 모델링
 - LSTM 사용
