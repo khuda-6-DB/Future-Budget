@@ -17,15 +17,15 @@
 ### 2. 데이터 분석
 > RESULT1: 카테고리별 지출
 
-<img src="https://github.com/user-attachments/assets/d3e215bd-c56c-423e-90ca-0eb4251463c9" width="50%" alt="카테고리별 지출">
+<img src="https://github.com/user-attachments/assets/d3e215bd-c56c-423e-90ca-0eb4251463c9" width="70%" alt="카테고리별 지출">
 
 > RESULT2: 전체 소비 동향
 
-![image](https://github.com/user-attachments/assets/f00c793d-d473-4bdc-bf3e-b8778e803fdc)
+<img src="https://github.com/user-attachments/assets/f00c793d-d473-4bd3-bf3e-b8778e803fdc" width="70%" alt="전체 소비 동향">
 
 ### 3. 데이터 모델링
 - LSTM 사용
-![image](https://github.com/user-attachments/assets/92d043a9-d715-4f4d-a7f7-c2310ccb1222)
+<img src="https://github.com/user-attachments/assets/92d043a9-d715-4f4d-a7f7-c2310ccb1222" width="70%" alt="LSTM 사용">
 - 모델 성능
   - MAE: 7.63
   - RMSE: 7.85
@@ -34,7 +34,7 @@
 ![image](https://github.com/user-attachments/assets/29477b65-038c-4f45-ba55-75d15ab7c8cd)
 
 ## :four: 시연 영상
-![image](https://github.com/user-attachments/assets/7844f11e-a947-4f06-8900-4030d57dc303)
-![image](https://github.com/user-attachments/assets/2a458534-ba3d-4ff1-b583-394f3d024e14)
+<img src="https://github.com/user-attachments/assets/7844f11e-a947-4f06-8900-4030d57dc303" width="50%" alt="이미지 1">
+<img src="https://github.com/user-attachments/assets/2a458534-ba3d-4ff1-b583-394f3d024e14" width="50%" alt="이미지 2">
 
 [https://studio.youtube.com/video/I0gngBUHCps/edit](https://studio.youtube.com/video/I0gngBUHCps/edit)
