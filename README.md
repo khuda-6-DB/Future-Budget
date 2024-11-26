@@ -17,7 +17,7 @@
 ### 2. 데이터 분석
 > RESULT1: 카테고리별 지출
 
-![image](https://github.com/user-attachments/assets/d3e215bd-c56c-423e-90ca-0eb4251463c9)
+<img src="https://github.com/user-attachments/assets/d3e215bd-c56c-423e-90ca-0eb4251463c9" width="50%" alt="카테고리별 지출">
 
 > RESULT2: 전체 소비 동향
 
@@ -35,4 +35,6 @@
 
 ## :four: 시연 영상
 ![image](https://github.com/user-attachments/assets/7844f11e-a947-4f06-8900-4030d57dc303)
+![image](https://github.com/user-attachments/assets/2a458534-ba3d-4ff1-b583-394f3d024e14)
+
 [https://studio.youtube.com/video/I0gngBUHCps/edit](https://studio.youtube.com/video/I0gngBUHCps/edit)
