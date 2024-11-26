@@ -14,3 +14,25 @@
 - 은행별 전처리
 - 카테고리화: chatgptAPI를 통한 거래내역과 관련된 문장 생성 + sentence transformers(ko-sroberta-multitask 모델 사용)
 - 거래내역과 가장 유사한 카테고리 도출
+### 2. 데이터 분석
+> RESULT1: 카테고리별 지출
+
+![image](https://github.com/user-attachments/assets/d3e215bd-c56c-423e-90ca-0eb4251463c9)
+
+> RESULT2: 전체 소비 동향
+
+![image](https://github.com/user-attachments/assets/f00c793d-d473-4bdc-bf3e-b8778e803fdc)
+
+### 3. 데이터 모델링
+- LSTM 사용
+![image](https://github.com/user-attachments/assets/92d043a9-d715-4f4d-a7f7-c2310ccb1222)
+- 모델 성능
+  - MAE: 7.63
+  - RMSE: 7.85
+
+## :three: 기능 구현
+![image](https://github.com/user-attachments/assets/29477b65-038c-4f45-ba55-75d15ab7c8cd)
+
+## :four: 시연 영상
+![image](https://github.com/user-attachments/assets/7844f11e-a947-4f06-8900-4030d57dc303)
+[https://studio.youtube.com/video/I0gngBUHCps/edit](https://studio.youtube.com/video/I0gngBUHCps/edit)
